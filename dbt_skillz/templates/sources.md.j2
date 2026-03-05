@@ -1,0 +1,32 @@
+# Source Systems
+
+{% for source in project.sources %}
+## {{ source.name }}
+
+| Attribute | Value |
+|-----------|-------|
+| Database | `{{ source.database }}` |
+| Schema | `{{ source.schema }}` |
+{% if source.description %}
+| Description | {{ source.description | trim }} |
+{% endif %}
+
+### Tables
+
+{% for table in source.tables %}
+#### `{{ table.name }}`
+
+{% if table.description %}{{ table.description | trim }}{% endif %}
+
+{% if table.columns %}
+| Column | Description |
+|--------|-------------|
+{% for col in table.columns %}
+| `{{ col.name }}` | {{ col.description | trim }} |
+{% endfor %}
+{% endif %}
+
+{% endfor %}
+---
+
+{% endfor %}

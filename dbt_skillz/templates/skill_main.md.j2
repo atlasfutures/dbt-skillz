@@ -1,0 +1,129 @@
+---
+name: {{ skill_name }}
+description: >-
+  Query the {{ project.name }} analytics data ({{ project.mart_models | length }} report tables, {{ project.total_source_table_count }} source tables).
+  Use when querying analytics data, building reports or dashboards, understanding available metrics,
+  or contributing to the dbt project. Data from {{ source_names }}.
+{% if extras_files %}
+  Includes development workflow guidance for submitting dashboard PRs and requesting dbt changes.
+{% endif %}
+---
+
+# {{ project.name }} Data Project
+
+## Overview
+
+| Attribute | Value |
+|-----------|-------|
+| Database | BigQuery project `{{ project.sources[0].database if project.sources else 'N/A' }}` |
+| Report tables | {{ project.mart_models | length }} (in `marts` schema) |
+| Source systems | {{ project.sources | length }} ({{ source_names }}) |
+| Total models | {{ project.total_model_count }} across {{ project.models | length }} layers |
+
+## Available Data
+
+{% for topic, models in topic_index.items() %}
+### {{ topic }}
+
+{% for model in models %}
+- **`{{ model.queryable_name }}`** -- {{ model.description | trim | truncate(120) }}{% if model.grain %} _({{ model.grain }})_{% endif %}
+
+{% endfor %}
+{% endfor %}
+
+## Quick Reference
+
+| Table | Grain | What it answers |
+|-------|-------|-----------------|
+{% for model in project.mart_models %}
+| `{{ model.queryable_name }}` | {{ model.grain if model.grain else '---' }} | {{ model.description | trim | truncate(80) }} |
+{% endfor %}
+
+## Architecture
+
+```mermaid
+graph LR
+{% for source in project.sources %}
+  src_{{ source.name }}["{{ source.name }}"]
+{% endfor %}
+
+{% for layer, models in project.models.items() %}
+{% set layer_id = layer | replace("/", "_") %}
+  layer_{{ layer_id }}["{{ layer }} - {{ models | length }} models"]
+{% endfor %}
+
+{% for source in project.sources %}
+{% for layer, models in project.models.items() %}
+{% set layer_id = layer | replace("/", "_") %}
+{% set has_dep = [] %}
+{% for model in models %}
+{% for src_name, tbl_name in model.sources %}
+{% if src_name == source.name %}
+{% if not has_dep %}
+  src_{{ source.name }} --> layer_{{ layer_id }}
+{% if has_dep.append(true) %}{% endif %}
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endfor %}
+{% endfor %}
+{% endfor %}
+
+{% for layer_a, models_a in project.models.items() %}
+{% set layer_a_id = layer_a | replace("/", "_") %}
+{% for layer_b, models_b in project.models.items() %}
+{% set layer_b_id = layer_b | replace("/", "_") %}
+{% if layer_a != layer_b %}
+{% set has_dep = [] %}
+{% for model_b in models_b %}
+{% for ref_name in model_b.refs %}
+{% for model_a in models_a %}
+{% if model_a.name == ref_name and not has_dep %}
+  layer_{{ layer_a_id }} --> layer_{{ layer_b_id }}
+{% if has_dep.append(true) %}{% endif %}
+{% endif %}
+{% endfor %}
+{% endfor %}
+{% endfor %}
+{% endif %}
+{% endfor %}
+{% endfor %}
+```
+
+## Navigation
+
+### For querying data and building reports
+
+{% for layer in mart_layers | sort %}
+{% set layer_file = layer | replace("/", "_") %}
+- **{{ layer }}**: column details, descriptions, grain -- read [ref/{{ layer_file }}.md](ref/{{ layer_file }}.md)
+{% endfor %}
+
+### For contributing to the dbt project
+
+{% for layer in internal_layers | sort %}
+{% set layer_file = layer | replace("/", "_") %}
+- **{{ layer }} layer**: read [ref/{{ layer_file }}.md](ref/{{ layer_file }}.md)
+{% endfor %}
+- **Source systems**: read [ref/sources.md](ref/sources.md)
+- **SQL macros**: read [ref/macros.md](ref/macros.md)
+- **Dependency graph**: read [ref/lineage.md](ref/lineage.md)
+
+{% if extras_files %}
+### Development workflow
+
+{% for extra in extras_files %}
+{% set label = extra.stem | replace("_", " ") | capitalize %}
+- **{{ label }}**: read [{{ extra }}]({{ extra }})
+{% endfor %}
+
+{% endif %}
+{% if project.variables %}
+### Project variables
+
+| Variable | Value |
+|----------|-------|
+{% for key, value in project.variables.items() %}
+| `{{ key }}` | `{{ value }}` |
+{% endfor %}
+{% endif %}

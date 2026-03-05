@@ -1,0 +1,32 @@
+version: 2
+
+sources:
+  - name: firestore
+    database: test_project
+    schema: raw_firestore
+    description: Raw data from Firestore
+    tables:
+      - name: users
+        description: User data from Firestore
+        columns:
+          - name: user_id
+            description: Unique user identifier
+          - name: email
+            description: User email address
+          - name: created_at
+            description: When the user was created
+
+  - name: analytics
+    database: test_project
+    schema: raw_analytics
+    description: Raw analytics data
+    tables:
+      - name: events
+        description: User interaction events
+        columns:
+          - name: event_id
+            description: Unique event identifier
+          - name: user_id
+            description: User who triggered event
+          - name: event_name
+            description: Type of event

@@ -1,0 +1,16 @@
+version: 2
+
+models:
+  - name: int_user_events
+    description: Intermediate model joining users with their events
+    columns:
+      - name: event_id
+        description: Unique event identifier
+      - name: user_id
+        description: User identifier
+      - name: email
+        description: User email
+      - name: event_name
+        description: Type of event
+      - name: event_count
+        description: Count of events for this user

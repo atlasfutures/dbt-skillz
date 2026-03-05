@@ -1,0 +1,12 @@
+version: 2
+
+models:
+  - name: stg_firestore__users
+    description: Cleaned and typed user data from Firestore
+    columns:
+      - name: user_id
+        description: Primary key - unique user identifier
+      - name: email
+        description: User email address
+      - name: created_at
+        description: When the user account was created

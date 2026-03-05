@@ -1,0 +1,104 @@
+{% if is_mart %}
+# Available Reports: {{ layer }}
+
+{{ layer_description }}
+
+**{{ models | length }} {{ "table" if models | length == 1 else "tables" }}** in the `{{ materialization }}` materialization.
+
+{% for model in models %}
+## {{ model.name }}
+
+{% if model.description %}
+{{ model.description | trim }}
+{% endif %}
+
+| Attribute | Value |
+|-----------|-------|
+| Query as | `{{ model.queryable_name }}` |
+{% if model.grain %}
+| Grain | {{ model.grain }} |
+{% endif %}
+
+{% if model.columns %}
+### Columns
+
+| Column | Description |
+|--------|-------------|
+{% for col in model.columns %}
+| `{{ col.name }}` | {{ col.description | trim }} |
+{% endfor %}
+{% endif %}
+
+{% if include_sql and model.sql_content %}
+### SQL
+
+```sql
+{{ model.sql_content }}
+```
+{% endif %}
+
+---
+
+{% endfor %}
+{% else %}
+# {{ layer }} (internal dbt models)
+
+{{ layer_description }}
+
+> These are internal dbt models used to build the mart tables. For querying data, see the mart reference files.
+
+**{{ models | length }} {{ "model" if models | length == 1 else "models" }}** | Materialization: {{ materialization }}
+
+{% for model in models %}
+## {{ model.name }}
+
+{% if model.description %}
+{{ model.description | trim }}
+{% endif %}
+
+| Attribute | Value |
+|-----------|-------|
+| Path | `{{ model.sql_path }}` |
+{% if model.materialized %}
+| Materialization | {{ model.materialized }} |
+{% endif %}
+
+{% if model.refs or model.sources %}
+### Dependencies
+
+{% if model.sources %}
+**Sources:**
+{% for src_name, tbl_name in model.sources %}
+- `{{ src_name }}.{{ tbl_name }}`
+{% endfor %}
+{% endif %}
+{% if model.refs %}
+**Refs:**
+{% for ref in model.refs %}
+- `{{ ref }}`
+{% endfor %}
+{% endif %}
+{% endif %}
+
+{% if model.columns %}
+### Columns
+
+| Column | Description | Tests |
+|--------|-------------|-------|
+{% for col in model.columns %}
+| `{{ col.name }}` | {{ col.description | trim }} | {{ col.tests | join(', ') if col.tests else '' }} |
+{% endfor %}
+{% endif %}
+
+{% if include_sql and model.sql_content %}
+### SQL
+
+```sql
+{{ model.sql_content }}
+```
+{% endif %}
+
+---
+
+{% endfor %}
+{% endif %}
