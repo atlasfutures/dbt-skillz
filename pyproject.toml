@@ -1,3 +1,7 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "dbt-skillz"
 version = "0.1.0"
@@ -70,6 +74,12 @@ reportUnusedImport = "error"
 
 [project.scripts]
 dbt-skillz = "dbt_skillz.cli:cli"
+
+[tool.setuptools.packages.find]
+include = ["dbt_skillz*"]
+
+[tool.setuptools.package-data]
+"dbt_skillz" = ["templates/*.j2"]
 
 [tool.uv]
 package = true
