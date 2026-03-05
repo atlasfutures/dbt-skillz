@@ -1,0 +1,68 @@
+# Data Lineage
+
+Full dependency graph for the {{ project.name }} project.
+
+## Dependency Graph
+
+```mermaid
+graph LR
+{% for source in project.sources %}
+{% for table in source.tables %}
+  src_{{ source.name }}_{{ table.name | replace(".", "_") | replace("-", "_") }}["{{ source.name }}.{{ table.name }}"]
+{% endfor %}
+{% endfor %}
+
+{% for layer, models in project.models.items() %}
+{% for model in models %}
+  {{ model.name }}["{{ model.name }}"]
+{% endfor %}
+{% endfor %}
+
+{% for layer, models in project.models.items() %}
+{% for model in models %}
+{% for src_name, tbl_name in model.sources %}
+  src_{{ src_name }}_{{ tbl_name | replace(".", "_") | replace("-", "_") }} --> {{ model.name }}
+{% endfor %}
+{% for ref in model.refs %}
+  {{ ref }} --> {{ model.name }}
+{% endfor %}
+{% endfor %}
+{% endfor %}
+```
+
+## Model Dependencies Table
+
+| Model | Layer | Depends On |
+|-------|-------|------------|
+{% for layer, models in project.models.items() %}
+{% for model in models %}
+{% set deps = [] %}
+{% for src_name, tbl_name in model.sources %}
+{% if deps.append(src_name ~ '.' ~ tbl_name) %}{% endif %}
+{% endfor %}
+{% for ref in model.refs %}
+{% if deps.append(ref) %}{% endif %}
+{% endfor %}
+| `{{ model.name }}` | {{ layer }} | {{ deps | join(', ') if deps else '(none)' }} |
+{% endfor %}
+{% endfor %}
+
+## Reverse Dependencies (downstream consumers)
+
+| Model | Consumed By |
+|-------|-------------|
+{% for layer, models in project.models.items() %}
+{% for model in models %}
+{% set consumers = [] %}
+{% for other_layer, other_models in project.models.items() %}
+{% for other_model in other_models %}
+{% if model.name in other_model.refs %}
+{% if consumers.append(other_model.name) %}{% endif %}
+{% endif %}
+{% endfor %}
+{% endfor %}
+{% if consumers %}
+| `{{ model.name }}` | {{ consumers | join(', ') }} |
+{% endif %}
+{% endfor %}
+{% endfor %}

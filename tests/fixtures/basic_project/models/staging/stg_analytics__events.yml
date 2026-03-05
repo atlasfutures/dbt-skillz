@@ -1,0 +1,12 @@
+version: 2
+
+models:
+  - name: stg_analytics__events
+    description: Cleaned and typed event data from analytics source
+    columns:
+      - name: event_id
+        description: Primary key - unique event identifier
+      - name: user_id
+        description: Foreign key to user
+      - name: event_name
+        description: Type/name of the event

@@ -1,0 +1,16 @@
+version: 2
+
+models:
+  - name: user_activity_report
+    description: Analytical report of user activity, one row per user
+    meta:
+      grain: "one row per user"
+    columns:
+      - name: user_id
+        description: Primary key - unique user identifier
+      - name: email
+        description: User email address
+      - name: total_events
+        description: Total number of events for the user
+      - name: last_activity_date
+        description: Date of user's last activity

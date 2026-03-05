@@ -1,0 +1,23 @@
+# Macros
+
+{% for macro in project.macros %}
+## `{{ macro.name }}({{ macro.arguments | join(', ') }})`
+
+{% if macro.description %}{{ macro.description | trim }}{% endif %}
+
+| Attribute | Value |
+|-----------|-------|
+| File | `{{ macro.sql_path }}` |
+{% if macro.arguments %}| Arguments | {{ macro.arguments | join(', ') }} |{% endif %}
+
+{% if include_sql and macro.sql_content %}
+### SQL
+
+```sql
+{{ macro.sql_content }}
+```
+{% endif %}
+
+---
+
+{% endfor %}
