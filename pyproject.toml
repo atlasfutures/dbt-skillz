@@ -4,9 +4,9 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "dbt-skillz"
-version = "0.2.0"
+version = "0.2.1"
 description = "Transform dbt projects into AI-readable Markdown documentation"
-authors = [{ name = "Workshop AI", email = "hello@workshop.ai" }]
+authors = [{ name = "Atlas Futures", email = "hello@atlasfutures.com" }]
 requires-python = ">=3.10,<3.14"
 readme = "README.md"
 license = { text = "Apache-2.0" }
@@ -30,7 +30,7 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/atlasfutures/dbt-skillz"
+Homepage = "https://atlasfutures.com"
 Issues = "https://github.com/atlasfutures/dbt-skillz/issues"
 Repository = "https://github.com/atlasfutures/dbt-skillz.git"
 
